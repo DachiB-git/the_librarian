@@ -78,7 +78,6 @@ class Librarian:
         self.__save_to_csv([book.to_dict() for book in books])
         parser = JSON()
         json = parser.parsef("data/data.json")
-        print(json)
         csv = self.__load_csv("data/data.csv")
         books_from_csv = [Book.from_list(row) for row in csv]
         books_from_json = [Book.from_dict(item) for item in json]
