@@ -30,7 +30,6 @@ class Librarian:
     def __get_categories(self, node: BeautifulSoup):
         categories = []
         sections = node.find_all("div", class_=self.__constants["CAROUSEL_CLASS"])
-        print(node)
         for section in sections:
             try:
                 header = section.find("div", class_=self.__constants["CAROUSEL_HEADER_CLASS"]).find("h2")
@@ -46,8 +45,8 @@ class Librarian:
         sections = node.find_all("div", class_=self.__constants["CAROUSEL_CLASS"])
         for section in sections:
             books = section.find_all("div", class_=self.__constants["CAROUSEL_ITEM_CLASS"])
-            for node in books:
-                all_books.append(Book(node))
+            for book in books:
+                all_books.append(Book(book))
         return all_books
 
     def __save_to_json(self, data):
@@ -61,10 +60,27 @@ class Librarian:
             for item in data:
                 w.writerow(item.values())
 
+    def __load_json(self, fn):
+        return JSON().parsef(fn)
+
+    def __load_csv(self, fn):
+        data = []
+        with open(fn, "r", encoding="utf-8") as f:
+            r = csv.reader(f)
+            for row in r:
+                data.append(row)
+        return data
+
     def run(self):
         dom = self.__get_home_page_content()
         books = self.__get_books(dom)
         self.__save_to_json([book.to_dict() for book in books])
         self.__save_to_csv([book.to_dict() for book in books])
         parser = JSON()
+        json = parser.parsef("data/data.json")
         print(json)
+        csv = self.__load_csv("data/data.csv")
+        books_from_csv = [Book.from_list(row) for row in csv]
+        books_from_json = [Book.from_dict(item) for item in json]
+        for book in books_from_json:
+            print(book)
